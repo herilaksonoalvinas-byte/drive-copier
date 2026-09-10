@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Drive Copier</title>
 
   <style>
@@ -199,12 +198,10 @@
 
 </div>
 
-
 <script>
 
 const API_URL =
   "https://script.google.com/macros/s/AKfycbxsh0K4u-GyNwqHEX7RmEpz_p7LIdd7nbORfm0pykgrpxN8U2FpJt_hw_t11_pLpZ7w/exec";
-
 
 let jobId = null;
 
@@ -221,6 +218,7 @@ async function startCopy() {
   const destination =
     document.getElementById("destination").value.trim();
 
+
   if (!source || !destination) {
 
     setStatus(
@@ -232,14 +230,50 @@ async function startCopy() {
   }
 
 
+  /*
+    KONFIRMASI KEDUA
+  */
+
+  const confirmCopy = confirm(
+
+    "⚠️ MULAI PROSES COPY?\n\n" +
+
+    "Source dan Destination akan diproses.\n\n" +
+
+    "File yang sudah ada akan dilewati.\n\n" +
+
+    "Pastikan kedua link sudah benar.\n\n" +
+
+    "Klik OK untuk mulai."
+
+  );
+
+
+  if (!confirmCopy) {
+
+    setStatus("Proses dibatalkan.");
+
+    return;
+  }
+
+
   const button =
     document.getElementById("copyButton");
 
+
+  /*
+    LANGSUNG DISABLE
+    AGAR TIDAK BISA DOUBLE CLICK
+  */
+
   button.disabled = true;
-  button.textContent = "MEMULAI...";
+
+  button.textContent = "SEDANG COPY...";
 
 
-  setStatus("Memulai proses copy...");
+  setStatus(
+    "Memulai proses copy..."
+  );
 
 
   try {
@@ -249,30 +283,45 @@ async function startCopy() {
       method: "POST",
 
       body: JSON.stringify({
+
         action: "start",
+
         source: source,
+
         destination: destination
+
       })
 
     });
 
 
-    const result = await response.json();
+    const result =
+      await response.json();
+
 
     if (!result.ok) {
 
       throw new Error(
-        result.error || "Terjadi kesalahan."
+        result.error ||
+        "Terjadi kesalahan."
       );
 
     }
 
 
-    jobId = result.data.id;
+    jobId =
+      result.data.id;
 
-    updateStats(result.data);
 
-    setStatus("Proses copy berjalan...");
+    updateStats(
+      result.data
+    );
+
+
+    setStatus(
+      "Proses copy berjalan..."
+    );
+
 
     await continueCopy();
 
@@ -284,8 +333,11 @@ async function startCopy() {
       "error"
     );
 
+
     button.disabled = false;
-    button.textContent = "COPY FOLDER";
+
+    button.textContent =
+      "COPY FOLDER";
 
   }
 
@@ -293,7 +345,7 @@ async function startCopy() {
 
 
 /* =========================
-   CONTINUE
+   CONTINUE COPY
 ========================= */
 
 async function continueCopy() {
@@ -305,28 +357,40 @@ async function continueCopy() {
       method: "POST",
 
       body: JSON.stringify({
+
         action: "continue",
+
         jobId: jobId
+
       })
 
     });
 
 
-    const result = await response.json();
+    const result =
+      await response.json();
+
 
     if (!result.ok) {
 
       throw new Error(
-        result.error || "Terjadi kesalahan."
+        result.error ||
+        "Terjadi kesalahan."
       );
 
     }
 
 
-    const job = result.data;
+    const job =
+      result.data;
+
 
     updateStats(job);
 
+
+    /*
+      SELESAI
+    */
 
     if (job.status === "completed") {
 
@@ -335,26 +399,45 @@ async function continueCopy() {
         "success"
       );
 
-      document.getElementById("progress").style.width =
-        "100%";
+
+      document
+        .getElementById("progress")
+        .style.width = "100%";
+
 
       const button =
         document.getElementById("copyButton");
 
+
       button.disabled = false;
-      button.textContent = "COPY LAGI";
+
+      button.textContent =
+        "COPY LAGI";
+
 
       return;
     }
 
 
+    /*
+      MASIH BERJALAN
+    */
+
     setStatus(
-      "Copy masih berjalan... Folder tersisa: " +
+
+      "Copy masih berjalan... " +
+
+      "Folder tersisa: " +
+
       job.queue.length
+
     );
 
 
-    // Lanjut otomatis setelah 1 detik
+    /*
+      LANJUT LAGI SETELAH 1 DETIK
+    */
+
     setTimeout(
       continueCopy,
       1000
@@ -368,11 +451,15 @@ async function continueCopy() {
       "error"
     );
 
+
     const button =
       document.getElementById("copyButton");
 
+
     button.disabled = false;
-    button.textContent = "COBA LAGI";
+
+    button.textContent =
+      "COBA LAGI";
 
   }
 
@@ -380,51 +467,69 @@ async function continueCopy() {
 
 
 /* =========================
-   UPDATE STATS
+   UPDATE STATISTIK
 ========================= */
 
 function updateStats(job) {
 
-  document.getElementById("copied").textContent =
-    job.copied || 0;
-
-  document.getElementById("skipped").textContent =
-    job.skipped || 0;
-
-  document.getElementById("folders").textContent =
-    job.foldersCreated || 0;
+  document
+    .getElementById("copied")
+    .textContent =
+      job.copied || 0;
 
 
-  /*
-   * Progress ini hanya perkiraan.
-   * Backend akan tetap melanjutkan sampai selesai.
-   */
+  document
+    .getElementById("skipped")
+    .textContent =
+      job.skipped || 0;
+
+
+  document
+    .getElementById("folders")
+    .textContent =
+      job.foldersCreated || 0;
+
 
   const processed =
+
     (job.copied || 0) +
+
     (job.skipped || 0);
+
 
   const remaining =
     job.queue.length || 0;
 
+
   const total =
     processed + remaining;
 
+
   let percentage = 0;
 
+
   if (total > 0) {
+
     percentage =
       Math.min(
+
         99,
+
         Math.round(
-          processed / total * 100
+          processed /
+          total *
+          100
         )
+
       );
+
   }
 
 
-  document.getElementById("progress").style.width =
-    percentage + "%";
+  document
+    .getElementById("progress")
+    .style.width =
+      percentage + "%";
 
 }
 
@@ -433,12 +538,18 @@ function updateStats(job) {
    STATUS
 ========================= */
 
-function setStatus(text, type = "") {
+function setStatus(
+  text,
+  type = ""
+) {
 
   const status =
     document.getElementById("status");
 
-  status.textContent = text;
+
+  status.textContent =
+    text;
+
 
   status.className =
     "status " + type;
