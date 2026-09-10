@@ -1,155 +1,283 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
   <title>Drive Copier</title>
 
+
   <style>
+
     * {
       box-sizing: border-box;
     }
 
+
     body {
+
       margin: 0;
+
       min-height: 100vh;
+
       font-family: Arial, sans-serif;
+
       background: #f5f7fb;
+
       display: flex;
+
       align-items: center;
+
       justify-content: center;
+
       padding: 20px;
+
     }
+
 
     .container {
+
       width: 100%;
+
       max-width: 600px;
+
       background: white;
+
       padding: 32px;
+
       border-radius: 18px;
-      box-shadow: 0 10px 40px rgba(0,0,0,.08);
+
+      box-shadow:
+        0 10px 40px rgba(0,0,0,.08);
+
     }
+
 
     h1 {
+
       margin: 0 0 8px;
+
       font-size: 28px;
+
     }
+
 
     .subtitle {
+
       color: #666;
+
       margin-bottom: 28px;
+
     }
+
 
     label {
+
       display: block;
+
       font-weight: bold;
+
       margin: 18px 0 8px;
+
     }
+
 
     input {
+
       width: 100%;
+
       padding: 14px;
+
       border: 1px solid #ddd;
+
       border-radius: 10px;
+
       font-size: 14px;
+
       outline: none;
+
     }
+
 
     input:focus {
+
       border-color: #4285f4;
+
     }
+
 
     button {
+
       width: 100%;
+
       margin-top: 24px;
+
       padding: 15px;
+
       border: none;
+
       border-radius: 10px;
+
       background: #1a73e8;
+
       color: white;
+
       font-size: 16px;
+
       font-weight: bold;
+
       cursor: pointer;
+
     }
+
 
     button:hover {
+
       background: #1557b0;
+
     }
+
 
     button:disabled {
+
       background: #aaa;
+
       cursor: not-allowed;
+
     }
+
 
     .status {
+
       margin-top: 24px;
+
       padding: 14px;
+
       background: #f1f3f4;
+
       border-radius: 10px;
+
       color: #333;
+
     }
+
 
     .progress {
+
       height: 14px;
+
       background: #e5e7eb;
+
       border-radius: 20px;
+
       overflow: hidden;
+
       margin-top: 15px;
+
     }
+
 
     .progress-bar {
+
       height: 100%;
+
       width: 0%;
+
       background: #1a73e8;
+
       transition: width .3s;
+
     }
+
 
     .stats {
+
       display: grid;
+
       grid-template-columns: repeat(3, 1fr);
+
       gap: 10px;
+
       margin-top: 18px;
+
     }
+
 
     .stat {
+
       background: #f7f7f7;
+
       padding: 15px 8px;
+
       text-align: center;
+
       border-radius: 10px;
+
     }
+
 
     .stat strong {
+
       display: block;
+
       font-size: 20px;
+
     }
+
 
     .stat span {
+
       font-size: 12px;
+
       color: #666;
+
     }
+
 
     .error {
+
       color: #c5221f;
+
     }
 
+
     .success {
+
       color: #188038;
+
       font-weight: bold;
+
     }
+
   </style>
+
 </head>
+
 
 <body>
 
+
 <div class="container">
+
 
   <h1>📁 Drive Copier</h1>
 
+
   <div class="subtitle">
+
     Copy folder Google Drive tanpa perlu memasukkan Folder ID.
+
   </div>
 
+
   <label>Source Folder</label>
+
 
   <input
     id="source"
@@ -157,7 +285,9 @@
     placeholder="Paste link folder Google Drive..."
   >
 
+
   <label>Destination Folder</label>
+
 
   <input
     id="destination"
@@ -165,45 +295,257 @@
     placeholder="Paste link folder tujuan..."
   >
 
-  <button id="copyButton" onclick="startCopy()">
+
+  <button
+    id="copyButton"
+    onclick="startCopy()"
+  >
     COPY FOLDER
   </button>
 
-  <div class="status" id="status">
+
+  <div
+    class="status"
+    id="status"
+  >
     Siap digunakan.
   </div>
 
+
   <div class="progress">
-    <div class="progress-bar" id="progress"></div>
+
+    <div
+      class="progress-bar"
+      id="progress"
+    ></div>
+
   </div>
+
 
   <div class="stats">
 
-    <div class="stat">
-      <strong id="copied">0</strong>
-      <span>Copied</span>
-    </div>
 
     <div class="stat">
-      <strong id="skipped">0</strong>
-      <span>Skipped</span>
+
+      <strong id="copied">
+        0
+      </strong>
+
+      <span>
+        Copied
+      </span>
+
     </div>
 
+
     <div class="stat">
-      <strong id="folders">0</strong>
-      <span>Folders</span>
+
+      <strong id="skipped">
+        0
+      </strong>
+
+      <span>
+        Skipped
+      </span>
+
     </div>
+
+
+    <div class="stat">
+
+      <strong id="folders">
+        0
+      </strong>
+
+      <span>
+        Folders
+      </span>
+
+    </div>
+
 
   </div>
 
+
 </div>
 
+
 <script>
+
 
 const API_URL =
   "https://script.google.com/macros/s/AKfycbxsh0K4u-GyNwqHEX7RmEpz_p7LIdd7nbORfm0pykgrpxN8U2FpJt_hw_t11_pLpZ7w/exec";
 
+
 let jobId = null;
+
+
+/* =========================
+   PAGE LOAD
+========================= */
+
+window.addEventListener(
+  "load",
+  checkPreviousJob
+);
+
+
+/* =========================
+   CHECK PREVIOUS JOB
+========================= */
+
+async function checkPreviousJob() {
+
+  const savedJob =
+    localStorage.getItem(
+      "driveCopierJobId"
+    );
+
+
+  if (!savedJob) {
+    return;
+  }
+
+
+  try {
+
+    setStatus(
+      "Mengecek proses sebelumnya..."
+    );
+
+
+    const response =
+      await fetch(API_URL, {
+
+        method: "POST",
+
+        body: JSON.stringify({
+
+          action: "status",
+
+          jobId: savedJob
+
+        })
+
+      });
+
+
+    const result =
+      await response.json();
+
+
+    if (!result.ok) {
+
+      localStorage.removeItem(
+        "driveCopierJobId"
+      );
+
+      setStatus(
+        "Siap digunakan."
+      );
+
+      return;
+    }
+
+
+    const job =
+      result.data;
+
+
+    /*
+      Kalau sudah selesai,
+      hapus job lama.
+    */
+
+    if (
+      job.status === "completed"
+    ) {
+
+      localStorage.removeItem(
+        "driveCopierJobId"
+      );
+
+      setStatus(
+        "Proses sebelumnya sudah selesai.",
+        "success"
+      );
+
+      updateStats(job);
+
+      return;
+    }
+
+
+    /*
+      JOB MASIH BERJALAN
+    */
+
+    jobId = savedJob;
+
+
+    updateStats(job);
+
+
+    const lanjut =
+      confirm(
+
+        "⚠️ ADA PROSES COPY YANG BELUM SELESAI.\n\n" +
+
+        "Copied: " +
+        (job.copied || 0) +
+        "\n" +
+
+        "Skipped: " +
+        (job.skipped || 0) +
+        "\n" +
+
+        "Folder tersisa: " +
+        (job.queue
+          ? job.queue.length
+          : 0) +
+
+        "\n\n" +
+
+        "Mau lanjutkan proses?"
+
+      );
+
+
+    if (lanjut) {
+
+      disableButton();
+
+      setStatus(
+        "Melanjutkan proses copy..."
+      );
+
+      continueCopy();
+
+    } else {
+
+      setStatus(
+        "Proses sebelumnya tersedia. Klik COPY hanya jika ingin membuat job baru."
+      );
+
+      jobId = null;
+
+    }
+
+
+  } catch (error) {
+
+    console.log(
+      "Resume check error:",
+      error
+    );
+
+    setStatus(
+      "Siap digunakan."
+    );
+
+  }
+
+}
 
 
 /* =========================
@@ -213,10 +555,17 @@ let jobId = null;
 async function startCopy() {
 
   const source =
-    document.getElementById("source").value.trim();
+    document
+      .getElementById("source")
+      .value
+      .trim();
+
 
   const destination =
-    document.getElementById("destination").value.trim();
+    document
+      .getElementById("destination")
+      .value
+      .trim();
 
 
   if (!source || !destination) {
@@ -230,45 +579,33 @@ async function startCopy() {
   }
 
 
-  /*
-    KONFIRMASI KEDUA
-  */
+  const confirmCopy =
+    confirm(
 
-  const confirmCopy = confirm(
+      "⚠️ MULAI PROSES COPY?\n\n" +
 
-    "⚠️ MULAI PROSES COPY?\n\n" +
+      "Source dan Destination akan diproses.\n\n" +
 
-    "Source dan Destination akan diproses.\n\n" +
+      "File yang sudah ada akan dilewati.\n\n" +
 
-    "File yang sudah ada akan dilewati.\n\n" +
+      "Pastikan kedua link sudah benar.\n\n" +
 
-    "Pastikan kedua link sudah benar.\n\n" +
+      "Klik OK untuk mulai."
 
-    "Klik OK untuk mulai."
-
-  );
+    );
 
 
   if (!confirmCopy) {
 
-    setStatus("Proses dibatalkan.");
+    setStatus(
+      "Proses dibatalkan."
+    );
 
     return;
   }
 
 
-  const button =
-    document.getElementById("copyButton");
-
-
-  /*
-    LANGSUNG DISABLE
-    AGAR TIDAK BISA DOUBLE CLICK
-  */
-
-  button.disabled = true;
-
-  button.textContent = "SEDANG COPY...";
+  disableButton();
 
 
   setStatus(
@@ -278,21 +615,22 @@ async function startCopy() {
 
   try {
 
-    const response = await fetch(API_URL, {
+    const response =
+      await fetch(API_URL, {
 
-      method: "POST",
+        method: "POST",
 
-      body: JSON.stringify({
+        body: JSON.stringify({
 
-        action: "start",
+          action: "start",
 
-        source: source,
+          source: source,
 
-        destination: destination
+          destination: destination
 
-      })
+        })
 
-    });
+      });
 
 
     const result =
@@ -309,13 +647,26 @@ async function startCopy() {
     }
 
 
+    const job =
+      result.data;
+
+
     jobId =
-      result.data.id;
+      job.id;
 
 
-    updateStats(
-      result.data
+    /*
+      SIMPAN JOB ID
+      DI BROWSER
+    */
+
+    localStorage.setItem(
+      "driveCopierJobId",
+      jobId
     );
+
+
+    updateStats(job);
 
 
     setStatus(
@@ -323,21 +674,21 @@ async function startCopy() {
     );
 
 
-    await continueCopy();
+    continueCopy();
 
 
   } catch (error) {
 
     setStatus(
-      "ERROR: " + error.message,
+      "ERROR: " +
+      error.message,
       "error"
     );
 
 
-    button.disabled = false;
-
-    button.textContent =
-      "COPY FOLDER";
+    enableButton(
+      "COPY FOLDER"
+    );
 
   }
 
@@ -350,21 +701,27 @@ async function startCopy() {
 
 async function continueCopy() {
 
+  if (!jobId) {
+    return;
+  }
+
+
   try {
 
-    const response = await fetch(API_URL, {
+    const response =
+      await fetch(API_URL, {
 
-      method: "POST",
+        method: "POST",
 
-      body: JSON.stringify({
+        body: JSON.stringify({
 
-        action: "continue",
+          action: "continue",
 
-        jobId: jobId
+          jobId: jobId
 
-      })
+        })
 
-    });
+      });
 
 
     const result =
@@ -392,7 +749,9 @@ async function continueCopy() {
       SELESAI
     */
 
-    if (job.status === "completed") {
+    if (
+      job.status === "completed"
+    ) {
 
       setStatus(
         "✅ COPY SELESAI!",
@@ -405,14 +764,14 @@ async function continueCopy() {
         .style.width = "100%";
 
 
-      const button =
-        document.getElementById("copyButton");
+      localStorage.removeItem(
+        "driveCopierJobId"
+      );
 
 
-      button.disabled = false;
-
-      button.textContent =
-        "COPY LAGI";
+      enableButton(
+        "COPY LAGI"
+      );
 
 
       return;
@@ -420,7 +779,7 @@ async function continueCopy() {
 
 
     /*
-      MASIH BERJALAN
+      MASIH ADA QUEUE
     */
 
     setStatus(
@@ -435,7 +794,8 @@ async function continueCopy() {
 
 
     /*
-      LANJUT LAGI SETELAH 1 DETIK
+      Lanjut otomatis
+      setelah 1 detik
     */
 
     setTimeout(
@@ -446,20 +806,27 @@ async function continueCopy() {
 
   } catch (error) {
 
+    /*
+      JANGAN HAPUS JOB ID.
+
+      Jadi kalau browser refresh /
+      dibuka lagi, job masih bisa ditemukan.
+    */
+
     setStatus(
-      "ERROR: " + error.message,
+
+      "⚠️ Koneksi/proses terhenti. " +
+
+      "Job tersimpan. Buka kembali halaman untuk melanjutkan.",
+
       "error"
+
     );
 
 
-    const button =
-      document.getElementById("copyButton");
-
-
-    button.disabled = false;
-
-    button.textContent =
-      "COBA LAGI";
+    enableButton(
+      "LANJUTKAN COPY"
+    );
 
   }
 
@@ -467,7 +834,7 @@ async function continueCopy() {
 
 
 /* =========================
-   UPDATE STATISTIK
+   UPDATE STATS
 ========================= */
 
 function updateStats(job) {
@@ -498,7 +865,9 @@ function updateStats(job) {
 
 
   const remaining =
-    job.queue.length || 0;
+    job.queue
+      ? job.queue.length
+      : 0;
 
 
   const total =
@@ -535,6 +904,40 @@ function updateStats(job) {
 
 
 /* =========================
+   BUTTON
+========================= */
+
+function disableButton() {
+
+  const button =
+    document
+      .getElementById("copyButton");
+
+
+  button.disabled = true;
+
+  button.textContent =
+    "SEDANG COPY...";
+
+}
+
+
+function enableButton(text) {
+
+  const button =
+    document
+      .getElementById("copyButton");
+
+
+  button.disabled = false;
+
+  button.textContent =
+    text;
+
+}
+
+
+/* =========================
    STATUS
 ========================= */
 
@@ -544,7 +947,8 @@ function setStatus(
 ) {
 
   const status =
-    document.getElementById("status");
+    document
+      .getElementById("status");
 
 
   status.textContent =
@@ -556,7 +960,10 @@ function setStatus(
 
 }
 
+
 </script>
 
+
 </body>
+
 </html>
